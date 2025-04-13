@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roleta de Cupons</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #roleta {
+      margin: 30px auto;
+      width: 300px;
+      height: 300px;
+      border: 8px solid #333;
+      border-radius: 50%;
+      position: relative;
+      overflow: hidden;
+      transition: transform 5s ease-out;
+    }
+
+    .segmento {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      transform-origin: 100% 100%;
+      text-align: right;
+      padding: 10px;
+      box-sizing: border-box;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    #botao-girar {
+      padding: 15px 30px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    #botao-girar:disabled {
+      background: grey;
+      cursor: not-allowed;
+    }
+
+    #resultado {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    #aviso {
+      margin-top: 20px;
+      color: red;
+      font-weight: bold;
+      display: none;
+    }
+
+    #video-anuncio {
+      margin-top: 20px;
+      display: none;
+    }
+
+    #resgatar-btn {
+      margin-top: 20px;
+      display: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: green;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    @media (max-width: 600px) {
+      #roleta {
+        width: 200px;
+        height: 200px;
+      }
+
+      #botao-girar {
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+
+      #resgatar-btn {
+        font-size: 14px;
+        padding: 8px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Roleta dos Cupons</h1>
+  <div id="roleta"></div>
+  <button id="botao-girar">Girar</button>
+  <div id="resultado"></div>
+  <div id="aviso">Assista ao anúncio para resgatar seu prêmio...</div>
+  <div id="video-anuncio">
+    <iframe width="300" height="170" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0" frameborder="0" allow="autoplay" allowfullscreen></iframe>
+  </div>
+  <a id="resgatar-btn" href="#" target="_blank">Resgatar Cupom</a>
+
+  <script>
+    const premios = [
+      { texto: 'Cupom R$10', link: 'https://seulink.com/cupom10' },
+      { texto: 'Cupom R$20', link: 'https://seulink.com/cupom20' },
+      { texto: 'Cupom R$50', link: 'https://seulink.com/cupom50' },
+    ];
+
+    const roleta = document.getElementById('roleta');
+    const botao = document.getElementById('botao-girar');
+    const resultado = document.getElementById('resultado');
+    const aviso = document.getElementById('aviso');
+    const videoAnuncio = document.getElementById('video-anuncio');
+    const botaoResgatar = document.getElementById('resgatar-btn');
+
+    function criarSegmentos() {
+      const n = premios.length;
+      const grau = 360 / n;
+      for (let i = 0; i < n; i++) {
+        const seg = document.createElement('div');
+        seg.className = 'segmento';
+        seg.style.transform = `rotate(${i * grau}deg) skewY(${90 - grau}deg)`;
+        seg.style.background = i % 2 === 0 ? '#f8d210' : '#e67e22';
+        seg.textContent = premios[i].texto;
+        roleta.appendChild(seg);
+      }
+    }
+
+    criarSegmentos();
+
+    botao.addEventListener('click', () => {
+      botao.disabled = true; // Desabilita o botão
+      resultado.textContent = '';
+      aviso.style.display = 'none';
+      videoAnuncio.style.display = 'none';
+      botaoResgatar.style.display = 'none';
+
+      const voltas = Math.floor(Math.random() * 3) + 4;
+      const anguloPorSegmento = 360 / premios.length;
+      const anguloSorteado = Math.random() * anguloPorSegmento;
+      const rotacaoFinal = (voltas * 360) + anguloSorteado;
+
+      roleta.style.transform = `rotate(${rotacaoFinal}deg)`;
+
+      setTimeout(() => {
+        const angulo = rotacaoFinal % 360;
+        const index = Math.floor(((360 - angulo) % 360) / anguloPorSegmento);
+        const premio = premios[index];
+
+        resultado.textContent = `Você ganhou: ${premio.texto}`;
+        aviso.style.display = 'block';
+        videoAnuncio.style.display = 'block';
+
+        setTimeout(() => {
+          botaoResgatar.style.display = 'inline-block';
+          botaoResgatar.href = premio.link; // Define o link do prêmio
+          botaoResgatar.textContent = 'Resgatar Cupom';
+          botao.disabled = false; // Reabilita o botão
+        }, 20000); // 20 segundos
+      }, 5200);
+    });
+  </script>
+</body>
+</html>
